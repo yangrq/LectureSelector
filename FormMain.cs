@@ -8,11 +8,68 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Net;
 
 namespace LectureSelector
 {
     public partial class FormMain : System.Windows.Forms.Form
     {
+        [DllImport("kernel32")]
+        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
+        [DllImport("kernel32")]
+        private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
+
+        public void iniWriteValue(string section, string key, string value,string path)
+        {
+            WritePrivateProfileString(section, key, value, path);
+        }
+
+        public string iniReadValue(string section, string key, string path)
+        {
+            StringBuilder temp = new StringBuilder(256);
+            int i = GetPrivateProfileString(section, key, "", temp, 256, path);
+            return temp.ToString();
+        }
+
+        public bool initConfigure()
+        {
+            if (!Directory.Exists(@".\new"))
+                try
+                {
+                    Directory.CreateDirectory(@".\new");
+                }
+                catch (IOException e)
+                {
+                    MessageBox.Show("无法创建new文件夹","错误");
+                    return false;
+                }
+            if(!Directory.Exists(@".\old"))
+                try
+            {
+                Directory.CreateDirectory(@".\old");
+            }
+            catch (IOException e)
+            {
+                MessageBox.Show("无法创建old文件夹", "错误");
+                return false;
+            }
+            if (!File.Exists(@".\config.ini"))
+                try
+                {
+                    File.CreateText(@".\config.ini");
+                    iniWriteValue("State", "Next", "00", @".\config.ini");
+                    iniWriteValue("State", "Vivid", "true", @".\config.ini");
+                    iniWriteValue("Mapper", "Random", "true", @".\config.ini");
+                }
+                catch (IOException e)
+                {
+                    MessageBox.Show("无法创建配置文件", "错误");
+                    return false;
+                }
+            return true;
+        }
+
         public int high = 0, low = 0;
         public bool moved = false;
         public FormMain()
@@ -54,7 +111,7 @@ namespace LectureSelector
         private void timerMain_Tick(object sender, EventArgs e)
         {
             var rnd = new Random();
-            high = rnd.Next(0,9);
+            high = rnd.Next(0, 9);
             low = rnd.Next(0, 9);
             labelHigh.Text = high.ToString();
             labelLow.Text = low.ToString();
@@ -82,14 +139,6 @@ namespace LectureSelector
             }
         }
 
-        const int Guying_HTLEFT = 10;
-        const int Guying_HTRIGHT = 11;
-        const int Guying_HTTOP = 12;
-        const int Guying_HTTOPLEFT = 13;
-        const int Guying_HTTOPRIGHT = 14;
-        const int Guying_HTBOTTOM = 15;
-        const int Guying_HTBOTTOMLEFT = 16;
-        const int Guying_HTBOTTOMRIGHT = 17;
 
         private void timerFade_Tick(object sender, EventArgs e)
         {
@@ -116,19 +165,47 @@ namespace LectureSelector
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            initConfigure();
+            httpDownload(@"github.com/yangrq/LectureSelector/remote.ini", @".\remote.ini");
 
-            while (true)
+            var cfgpath = "";
+
+            if (iniReadValue("State", "Valid", @".\remote.ini").ToLower() == "true")
+                cfgpath = @".\remote.ini";
+            else
+                cfgpath = @".\config.ini";
+
+            if (iniReadValue("Mapper", "Random", cfgpath).ToLower() != "false")
             {
-                number = (new Random(Guid.NewGuid().GetHashCode())).Next(0, 100);
-                var path = ".\\new\\" + number.ToString() + ".txt";
+                var files = Directory.GetFiles(@".\new");
+                number = (new Random()).Next(0, files.Length - 1);
+                var path = @".\new\" + files[number].ToString() + ".txt";
                 if (File.Exists(path))
                 {
                     richTextBoxMain.Text = File.OpenText(path).ReadToEnd();
-                    File.Move(path, ".\\old\\" + number.ToString() + ".txt");
-                    break;
+                    File.Move(path, @".\old\" + files[number].ToString() + ".txt");
+                }
+            }
+            else
+            {
+                number = int.Parse(iniReadValue("State", "Next", cfgpath));
+                var path = @".\new\" + number.ToString() + ".txt";
+                if (File.Exists(path))
+                {
+                    richTextBoxMain.Text = File.OpenText(path).ReadToEnd();
+                    File.Move(path, @".\old\" + number.ToString() + ".txt");
                 }
             }
         }
+
+        const int CURSOR_HTLEFT = 10;
+        const int CURSOR_HTRIGHT = 11;
+        const int CURSOR_HTTOP = 12;
+        const int CURSOR_HTTOPLEFT = 13;
+        const int CURSOR_HTTOPRIGHT = 14;
+        const int CURSOR_HTBOTTOM = 15;
+        const int CURSOR_HTBOTTOMLEFT = 16;
+        const int CURSOR_HTBOTTOMRIGHT = 17;
 
         protected override void WndProc(ref Message m)
         {
@@ -141,20 +218,20 @@ namespace LectureSelector
                     vPoint = PointToClient(vPoint);
                     if (vPoint.X <= 5)
                         if (vPoint.Y <= 5)
-                            m.Result = (IntPtr)Guying_HTTOPLEFT;
+                            m.Result = (IntPtr)CURSOR_HTTOPLEFT;
                         else if (vPoint.Y >= ClientSize.Height - 5)
-                            m.Result = (IntPtr)Guying_HTBOTTOMLEFT;
-                        else m.Result = (IntPtr)Guying_HTLEFT;
+                            m.Result = (IntPtr)CURSOR_HTBOTTOMLEFT;
+                        else m.Result = (IntPtr)CURSOR_HTLEFT;
                     else if (vPoint.X >= ClientSize.Width - 5)
                         if (vPoint.Y <= 5)
-                            m.Result = (IntPtr)Guying_HTTOPRIGHT;
+                            m.Result = (IntPtr)CURSOR_HTTOPRIGHT;
                         else if (vPoint.Y >= ClientSize.Height - 5)
-                            m.Result = (IntPtr)Guying_HTBOTTOMRIGHT;
-                        else m.Result = (IntPtr)Guying_HTRIGHT;
+                            m.Result = (IntPtr)CURSOR_HTBOTTOMRIGHT;
+                        else m.Result = (IntPtr)CURSOR_HTRIGHT;
                     else if (vPoint.Y <= 5)
-                        m.Result = (IntPtr)Guying_HTTOP;
+                        m.Result = (IntPtr)CURSOR_HTTOP;
                     else if (vPoint.Y >= ClientSize.Height - 5)
-                        m.Result = (IntPtr)Guying_HTBOTTOM;
+                        m.Result = (IntPtr)CURSOR_HTBOTTOM;
                     break;
                 case 0x0201:                //鼠标左键按下的消息  
                     m.Msg = 0x00A1;         //更改消息为非客户区按下鼠标  
@@ -167,6 +244,39 @@ namespace LectureSelector
                     break;
             }
         }
-        
+
+        public bool httpDownload(string url, string path)
+        {
+            string tempPath = Path.GetDirectoryName(path) + @"\temp";
+            Directory.CreateDirectory(tempPath);
+            string tempFile = tempPath + @"\" + Path.GetFileName(path) + ".temp";
+            if (File.Exists(tempFile))
+            {
+                File.Delete(tempFile);
+            }
+            try
+            {
+                FileStream fs = new FileStream(tempFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                Stream responseStream = response.GetResponseStream();
+                byte[] bArr = new byte[1024];
+                int size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                while (size > 0)
+                {
+                    fs.Write(bArr, 0, size);
+                    size = responseStream.Read(bArr, 0, (int)bArr.Length);
+                }
+                fs.Close();
+                responseStream.Close();
+                File.Move(tempFile, path);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("远程连接失败", "错误");
+                return false;
+            }
+        }
     }
 }
