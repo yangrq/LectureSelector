@@ -61,6 +61,7 @@ namespace LectureSelector
                     iniWriteValue("State", "Next", "00", @".\config.ini");
                     iniWriteValue("State", "Vivid", "true", @".\config.ini");
                     iniWriteValue("Mapper", "Random", "true", @".\config.ini");
+                    iniWriteValue("Config", "UseRemote", "false", @".\config.ini");
                 }
                 catch (IOException e)
                 {
@@ -166,7 +167,9 @@ namespace LectureSelector
         private void FormMain_Load(object sender, EventArgs e)
         {
             initConfigure();
-            httpDownload(@"github.com/yangrq/LectureSelector/remote.ini", @".\remote.ini");
+
+            if (iniReadValue("Config", "UseRemote", @".\config.ini").ToLower() == "true")
+                httpDownload(@"github.com/yangrq/LectureSelector/remote.ini", @".\remote.ini");
 
             var cfgpath = "";
 
@@ -195,6 +198,7 @@ namespace LectureSelector
                     richTextBoxMain.Text = File.OpenText(path).ReadToEnd();
                     File.Move(path, @".\old\" + number.ToString() + ".txt");
                 }
+                File.Delete(".\remote.ini");
             }
         }
 
