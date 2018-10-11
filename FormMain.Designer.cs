@@ -37,16 +37,19 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.timerFade = new System.Windows.Forms.Timer(this.components);
             this.richTextBoxMain = new System.Windows.Forms.RichTextBox();
+            this.numericUpDownFontSize = new System.Windows.Forms.NumericUpDown();
+            this.checkBoxDebug = new System.Windows.Forms.CheckBox();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             this.SuspendLayout();
             // 
             // labelHigh
             // 
             this.labelHigh.AutoSize = true;
-            this.labelHigh.Font = new System.Drawing.Font("微软雅黑", 32F);
+            this.labelHigh.Font = new System.Drawing.Font("微软雅黑", 42F);
             this.labelHigh.ForeColor = System.Drawing.Color.Transparent;
-            this.labelHigh.Location = new System.Drawing.Point(283, 169);
+            this.labelHigh.Location = new System.Drawing.Point(268, 153);
             this.labelHigh.Name = "labelHigh";
-            this.labelHigh.Size = new System.Drawing.Size(50, 57);
+            this.labelHigh.Size = new System.Drawing.Size(65, 75);
             this.labelHigh.TabIndex = 0;
             this.labelHigh.Text = "0";
             this.labelHigh.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -54,11 +57,11 @@
             // labelLow
             // 
             this.labelLow.AutoSize = true;
-            this.labelLow.Font = new System.Drawing.Font("微软雅黑", 32F);
+            this.labelLow.Font = new System.Drawing.Font("微软雅黑", 42F);
             this.labelLow.ForeColor = System.Drawing.Color.Transparent;
-            this.labelLow.Location = new System.Drawing.Point(339, 169);
+            this.labelLow.Location = new System.Drawing.Point(339, 153);
             this.labelLow.Name = "labelLow";
-            this.labelLow.Size = new System.Drawing.Size(50, 57);
+            this.labelLow.Size = new System.Drawing.Size(65, 75);
             this.labelLow.TabIndex = 1;
             this.labelLow.Text = "0";
             this.labelLow.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -126,7 +129,7 @@
             // 
             // timerFade
             // 
-            this.timerFade.Interval = 20;
+            this.timerFade.Interval = 1000;
             this.timerFade.Tick += new System.EventHandler(this.timerFade_Tick);
             // 
             // richTextBoxMain
@@ -134,20 +137,46 @@
             this.richTextBoxMain.BackColor = System.Drawing.Color.White;
             this.richTextBoxMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxMain.Cursor = System.Windows.Forms.Cursors.Default;
-            this.richTextBoxMain.Font = new System.Drawing.Font("微软雅黑", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.richTextBoxMain.Location = new System.Drawing.Point(59, 63);
+            this.richTextBoxMain.Font = new System.Drawing.Font("微软雅黑", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.richTextBoxMain.Location = new System.Drawing.Point(482, 289);
             this.richTextBoxMain.Name = "richTextBoxMain";
             this.richTextBoxMain.ReadOnly = true;
-            this.richTextBoxMain.Size = new System.Drawing.Size(194, 108);
+            this.richTextBoxMain.Size = new System.Drawing.Size(153, 107);
             this.richTextBoxMain.TabIndex = 5;
             this.richTextBoxMain.Text = "测试文本";
             this.richTextBoxMain.Visible = false;
+            // 
+            // numericUpDownFontSize
+            // 
+            this.numericUpDownFontSize.Font = new System.Drawing.Font("微软雅黑", 11F);
+            this.numericUpDownFontSize.Location = new System.Drawing.Point(303, 313);
+            this.numericUpDownFontSize.Name = "numericUpDownFontSize";
+            this.numericUpDownFontSize.Size = new System.Drawing.Size(70, 27);
+            this.numericUpDownFontSize.TabIndex = 6;
+            this.numericUpDownFontSize.Value = new decimal(new int[] {
+            24,
+            0,
+            0,
+            0});
+            this.numericUpDownFontSize.Visible = false;
+            this.numericUpDownFontSize.ValueChanged += new System.EventHandler(this.numericUpDownFontSize_ValueChanged);
+            // 
+            // checkBoxDebug
+            // 
+            this.checkBoxDebug.AutoSize = true;
+            this.checkBoxDebug.Location = new System.Drawing.Point(3, 392);
+            this.checkBoxDebug.Name = "checkBoxDebug";
+            this.checkBoxDebug.Size = new System.Drawing.Size(15, 14);
+            this.checkBoxDebug.TabIndex = 7;
+            this.checkBoxDebug.UseVisualStyleBackColor = true;
             // 
             // FormMain
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.DodgerBlue;
             this.ClientSize = new System.Drawing.Size(664, 408);
+            this.Controls.Add(this.checkBoxDebug);
+            this.Controls.Add(this.numericUpDownFontSize);
             this.Controls.Add(this.richTextBoxMain);
             this.Controls.Add(this.buttonRun);
             this.Controls.Add(this.buttonMaxiumum);
@@ -162,6 +191,7 @@
             this.TopMost = true;
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.SizeChanged += new System.EventHandler(this.FormMain_SizeChanged);
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -177,6 +207,8 @@
         private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Timer timerFade;
         private System.Windows.Forms.RichTextBox richTextBoxMain;
+        private System.Windows.Forms.NumericUpDown numericUpDownFontSize;
+        private System.Windows.Forms.CheckBox checkBoxDebug;
     }
 }
 

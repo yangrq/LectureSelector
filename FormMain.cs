@@ -13,8 +13,10 @@ using System.Net;
 
 namespace LectureSelector
 {
+
     public partial class FormMain : System.Windows.Forms.Form
     {
+        /*
         [DllImport("kernel32")]
         private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
         [DllImport("kernel32")]
@@ -31,6 +33,7 @@ namespace LectureSelector
             int i = GetPrivateProfileString(section, key, "", temp, 256, path);
             return temp.ToString();
         }
+        */
 
         public bool initConfigure()
         {
@@ -39,42 +42,44 @@ namespace LectureSelector
                 {
                     Directory.CreateDirectory(@".\new");
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     MessageBox.Show("无法创建new文件夹","错误");
                     return false;
                 }
-            if(!Directory.Exists(@".\old"))
-                try
-            {
-                Directory.CreateDirectory(@".\old");
-            }
-            catch (IOException e)
-            {
-                MessageBox.Show("无法创建old文件夹", "错误");
-                return false;
-            }
-            if (!File.Exists(@".\config.ini"))
+            if (!Directory.Exists(@".\old"))
                 try
                 {
-                    File.CreateText(@".\config.ini");
-                    iniWriteValue("State", "Next", "00", @".\config.ini");
-                    iniWriteValue("State", "Vivid", "true", @".\config.ini");
-                    iniWriteValue("Mapper", "Random", "true", @".\config.ini");
-                    iniWriteValue("Config", "UseRemote", "false", @".\config.ini");
+                    Directory.CreateDirectory(@".\old");
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
-                    MessageBox.Show("无法创建配置文件", "错误");
+                    MessageBox.Show("无法创建old文件夹", "错误");
                     return false;
                 }
+            
             return true;
-        }
 
+        }
+        /*
+        public void GenerateFile(string path)
+        {
+           
+            var res = File.ReadAllText(path).Split(new string[] {"\n\r\n\r"},StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < res.Length; i++)
+            {
+                var w = File.CreateText(@".\gen\" + (i + 1).ToString() + ".txt");
+                w.WriteLine(res[i]);
+                w.Close();
+            }
+        }
+        */
         public int high = 0, low = 0;
         public bool moved = false;
+
         public FormMain()
         {
+            //GenerateFile(".\\file.txt");
             InitializeComponent();
         }
 
@@ -87,16 +92,27 @@ namespace LectureSelector
                 labelHigh.Top = Height / 2 - labelHigh.Height;
                 labelLow.Top = Height / 2 - labelLow.Height;
             }
+
             buttonClose.Left = Width - buttonClose.Width;
             buttonClose.Top = 0;
+
             buttonMaxiumum.Left = Width - buttonClose.Width - buttonMaxiumum.Width;
             buttonMaxiumum.Top = 0;
+
             buttonRun.Left = Width / 2 - buttonRun.Width / 2;
             buttonRun.Top = Height - buttonRun.Height - Height / 20;
-            richTextBoxMain.Height = 4 * (Height - buttonClose.Height) / 5;
-            richTextBoxMain.Width = 4 * Width / 5;
+
+            richTextBoxMain.Height = 17 * (Height - buttonClose.Height) / 20;
+            richTextBoxMain.Width = 17 * Width / 20;
             richTextBoxMain.Left = Width / 2 - richTextBoxMain.Width / 2;
             richTextBoxMain.Top = Height / 2 - richTextBoxMain.Height / 2;
+
+            numericUpDownFontSize.Left = Width / 2 - numericUpDownFontSize.Width / 2;
+            numericUpDownFontSize.Top = Height - numericUpDownFontSize.Height - Height / 40;
+
+            checkBoxDebug.Left = 3;
+            checkBoxDebug.Top = Height - checkBoxDebug.Height - 3;
+
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
@@ -125,11 +141,26 @@ namespace LectureSelector
         {
             if (state)
             {
+                var paths = Directory.GetFiles(@".\new");
+                if (paths.Length > 0)
+                {
+                    var index = (new Random()).Next(0, paths.Length - 1);
+                    var path = paths[index];
+                    number = int.Parse(Path.GetFileNameWithoutExtension(path));
+                    if (File.Exists(path))
+                    {
+                        richTextBoxMain.Text = File.ReadAllText(path);
+                        if (!checkBoxDebug.Checked)
+                            File.Move(path, @".\old\" + Path.GetFileName(path));
+                    }
+                }
+
                 labelHigh.Text = ((number - number % 10) / 10).ToString();
                 labelLow.Text = (number % 10).ToString();
                 timerMain.Stop();
                 state = false;
                 buttonRun.Visible = false;
+
                 timerFade.Start();
             }
             else
@@ -160,6 +191,7 @@ namespace LectureSelector
             moved = true;
 
             richTextBoxMain.Visible = true;
+            numericUpDownFontSize.Visible = true;
 
             timerFade.Stop();
         }
@@ -167,39 +199,7 @@ namespace LectureSelector
         private void FormMain_Load(object sender, EventArgs e)
         {
             initConfigure();
-
-            if (iniReadValue("Config", "UseRemote", @".\config.ini").ToLower() == "true")
-                httpDownload(@"github.com/yangrq/LectureSelector/remote.ini", @".\remote.ini");
-
-            var cfgpath = "";
-
-            if (iniReadValue("State", "Valid", @".\remote.ini").ToLower() == "true")
-                cfgpath = @".\remote.ini";
-            else
-                cfgpath = @".\config.ini";
-
-            if (iniReadValue("Mapper", "Random", cfgpath).ToLower() != "false")
-            {
-                var files = Directory.GetFiles(@".\new");
-                number = (new Random()).Next(0, files.Length - 1);
-                var path = @".\new\" + files[number].ToString() + ".txt";
-                if (File.Exists(path))
-                {
-                    richTextBoxMain.Text = File.OpenText(path).ReadToEnd();
-                    File.Move(path, @".\old\" + files[number].ToString() + ".txt");
-                }
-            }
-            else
-            {
-                number = int.Parse(iniReadValue("State", "Next", cfgpath));
-                var path = @".\new\" + number.ToString() + ".txt";
-                if (File.Exists(path))
-                {
-                    richTextBoxMain.Text = File.OpenText(path).ReadToEnd();
-                    File.Move(path, @".\old\" + number.ToString() + ".txt");
-                }
-                File.Delete(".\remote.ini");
-            }
+            
         }
 
         const int CURSOR_HTLEFT = 10;
@@ -210,6 +210,11 @@ namespace LectureSelector
         const int CURSOR_HTBOTTOM = 15;
         const int CURSOR_HTBOTTOMLEFT = 16;
         const int CURSOR_HTBOTTOMRIGHT = 17;
+
+        private void numericUpDownFontSize_ValueChanged(object sender, EventArgs e)
+        {
+            richTextBoxMain.Font = new Font("微软雅黑", (float)(numericUpDownFontSize.Value > 8 ? numericUpDownFontSize.Value : 8));
+        }
 
         protected override void WndProc(ref Message m)
         {
@@ -248,7 +253,7 @@ namespace LectureSelector
                     break;
             }
         }
-
+        /*
         public bool httpDownload(string url, string path)
         {
             string tempPath = Path.GetDirectoryName(path) + @"\temp";
@@ -282,5 +287,6 @@ namespace LectureSelector
                 return false;
             }
         }
+        */
     }
 }
