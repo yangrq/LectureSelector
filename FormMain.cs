@@ -17,25 +17,20 @@ namespace LectureSelector
     public partial class FormMain : System.Windows.Forms.Form
     {
         /*
-        [DllImport("kernel32")]
-        private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
-        [DllImport("kernel32")]
-        private static extern int GetPrivateProfileString(string section, string key, string def, StringBuilder retVal, int size, string filePath);
-
-        public void iniWriteValue(string section, string key, string value,string path)
+        public void GenerateFile(string path)
         {
-            WritePrivateProfileString(section, key, value, path);
-        }
 
-        public string iniReadValue(string section, string key, string path)
-        {
-            StringBuilder temp = new StringBuilder(256);
-            int i = GetPrivateProfileString(section, key, "", temp, 256, path);
-            return temp.ToString();
+            var res = File.ReadAllText(path).Split(new string[] { "\n\r\n\r" }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < res.Length; i++)
+            {
+                var w = File.CreateText(@".\gen\" + (i + 1).ToString() + ".txt");
+                w.WriteLine(res[i]);
+                w.Close();
+            }
         }
         */
 
-        public bool initConfigure()
+        private bool initConfigure()
         {
             if (!Directory.Exists(@".\new"))
                 try
@@ -61,26 +56,21 @@ namespace LectureSelector
             return true;
 
         }
-        /*
-        public void GenerateFile(string path)
-        {
-           
-            var res = File.ReadAllText(path).Split(new string[] {"\n\r\n\r"},StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < res.Length; i++)
-            {
-                var w = File.CreateText(@".\gen\" + (i + 1).ToString() + ".txt");
-                w.WriteLine(res[i]);
-                w.Close();
-            }
-        }
-        */
-        public int high = 0, low = 0;
-        public bool moved = false;
+
+        private int high = 0, low = 0;
+        private bool moved = false;
+        private bool state = false;
+        private int number = 88;
+        private int time = 0;
 
         public FormMain()
         {
             //GenerateFile(".\\file.txt");
             InitializeComponent();
+#if DEBUG
+            textBoxPassword.Visible = false;
+            buttonRun.Visible = true;
+#endif
         }
 
         private void FormMain_SizeChanged(object sender, EventArgs e)
@@ -102,6 +92,9 @@ namespace LectureSelector
             buttonRun.Left = Width / 2 - buttonRun.Width / 2;
             buttonRun.Top = Height - buttonRun.Height - Height / 20;
 
+            textBoxPassword.Left = Width / 2 - textBoxPassword.Width / 2;
+            textBoxPassword.Top = Height - textBoxPassword.Height - Height / 20;
+
             richTextBoxMain.Height = 17 * (Height - buttonClose.Height) / 20;
             richTextBoxMain.Width = 17 * Width / 20;
             richTextBoxMain.Left = Width / 2 - richTextBoxMain.Width / 2;
@@ -113,6 +106,8 @@ namespace LectureSelector
             checkBoxDebug.Left = 3;
             checkBoxDebug.Top = Height - checkBoxDebug.Height - 3;
 
+            labelTime.Top = 8;
+            labelTime.Left = Width / 2 - labelTime.Width / 2;
         }
 
         private void buttonClose_Click(object sender, EventArgs e)
@@ -134,9 +129,6 @@ namespace LectureSelector
             labelLow.Text = low.ToString();
         }
 
-        public bool state = false;
-        public int number = 88;
-
         private void buttonRun_Click(object sender, EventArgs e)
         {
             if (state)
@@ -149,9 +141,14 @@ namespace LectureSelector
                     number = int.Parse(Path.GetFileNameWithoutExtension(path));
                     if (File.Exists(path))
                     {
-                        richTextBoxMain.Text = File.ReadAllText(path);
+                        var str = File.ReadAllText(path);
+                        richTextBoxMain.Text = str
+                            .Replace("\n", "\n    ")
+                            .Replace("    *", "  ※ ");
+#if !DEBUG
                         if (!checkBoxDebug.Checked)
                             File.Move(path, @".\old\" + Path.GetFileName(path));
+#endif
                     }
                 }
 
@@ -192,14 +189,17 @@ namespace LectureSelector
 
             richTextBoxMain.Visible = true;
             numericUpDownFontSize.Visible = true;
+            labelTime.Visible = true;
 
+            timerCount.Start();
             timerFade.Stop();
         }
 
         private void FormMain_Load(object sender, EventArgs e)
         {
             initConfigure();
-            
+            richTextBoxMain.SelectionIndent = 4;
+            richTextBoxMain.SelectionRightIndent = 4;
         }
 
         const int CURSOR_HTLEFT = 10;
@@ -214,6 +214,21 @@ namespace LectureSelector
         private void numericUpDownFontSize_ValueChanged(object sender, EventArgs e)
         {
             richTextBoxMain.Font = new Font("微软雅黑", (float)(numericUpDownFontSize.Value > 8 ? numericUpDownFontSize.Value : 8));
+        }
+
+        private void timerCount_Tick(object sender, EventArgs e)
+        {
+            time++;
+            labelTime.Text = $"{((time - time % 60) / 60):00}:{(time % 60):00}";
+        }
+
+        private void textBoxPassword_TextChanged(object sender, EventArgs e)
+        {
+            if (textBoxPassword.Text == "0987")
+            {
+                textBoxPassword.Visible = false;
+                buttonRun.Visible = true;
+            }
         }
 
         protected override void WndProc(ref Message m)

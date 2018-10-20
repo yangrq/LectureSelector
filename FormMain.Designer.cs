@@ -39,6 +39,9 @@
             this.richTextBoxMain = new System.Windows.Forms.RichTextBox();
             this.numericUpDownFontSize = new System.Windows.Forms.NumericUpDown();
             this.checkBoxDebug = new System.Windows.Forms.CheckBox();
+            this.labelTime = new System.Windows.Forms.Label();
+            this.timerCount = new System.Windows.Forms.Timer(this.components);
+            this.textBoxPassword = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDownFontSize)).BeginInit();
             this.SuspendLayout();
             // 
@@ -47,7 +50,7 @@
             this.labelHigh.AutoSize = true;
             this.labelHigh.Font = new System.Drawing.Font("微软雅黑", 42F);
             this.labelHigh.ForeColor = System.Drawing.Color.Transparent;
-            this.labelHigh.Location = new System.Drawing.Point(268, 153);
+            this.labelHigh.Location = new System.Drawing.Point(269, 162);
             this.labelHigh.Name = "labelHigh";
             this.labelHigh.Size = new System.Drawing.Size(65, 75);
             this.labelHigh.TabIndex = 0;
@@ -59,7 +62,7 @@
             this.labelLow.AutoSize = true;
             this.labelLow.Font = new System.Drawing.Font("微软雅黑", 42F);
             this.labelLow.ForeColor = System.Drawing.Color.Transparent;
-            this.labelLow.Location = new System.Drawing.Point(339, 153);
+            this.labelLow.Location = new System.Drawing.Point(340, 162);
             this.labelLow.Name = "labelLow";
             this.labelLow.Size = new System.Drawing.Size(65, 75);
             this.labelLow.TabIndex = 1;
@@ -125,6 +128,7 @@
             this.buttonRun.TabIndex = 4;
             this.buttonRun.Text = "开始";
             this.buttonRun.UseVisualStyleBackColor = false;
+            this.buttonRun.Visible = false;
             this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click);
             // 
             // timerFade
@@ -138,10 +142,11 @@
             this.richTextBoxMain.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBoxMain.Cursor = System.Windows.Forms.Cursors.Default;
             this.richTextBoxMain.Font = new System.Drawing.Font("微软雅黑", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.richTextBoxMain.Location = new System.Drawing.Point(482, 289);
+            this.richTextBoxMain.Location = new System.Drawing.Point(507, 366);
             this.richTextBoxMain.Name = "richTextBoxMain";
             this.richTextBoxMain.ReadOnly = true;
-            this.richTextBoxMain.Size = new System.Drawing.Size(153, 107);
+            this.richTextBoxMain.ShowSelectionMargin = true;
+            this.richTextBoxMain.Size = new System.Drawing.Size(128, 30);
             this.richTextBoxMain.TabIndex = 5;
             this.richTextBoxMain.Text = "测试文本";
             this.richTextBoxMain.Visible = false;
@@ -170,11 +175,40 @@
             this.checkBoxDebug.TabIndex = 7;
             this.checkBoxDebug.UseVisualStyleBackColor = true;
             // 
+            // labelTime
+            // 
+            this.labelTime.AutoSize = true;
+            this.labelTime.Font = new System.Drawing.Font("微软雅黑", 14F);
+            this.labelTime.ForeColor = System.Drawing.Color.Transparent;
+            this.labelTime.Location = new System.Drawing.Point(308, 8);
+            this.labelTime.Name = "labelTime";
+            this.labelTime.Size = new System.Drawing.Size(61, 25);
+            this.labelTime.TabIndex = 8;
+            this.labelTime.Text = "00:00";
+            this.labelTime.Visible = false;
+            // 
+            // timerCount
+            // 
+            this.timerCount.Interval = 1000;
+            this.timerCount.Tick += new System.EventHandler(this.timerCount_Tick);
+            // 
+            // textBoxPassword
+            // 
+            this.textBoxPassword.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.textBoxPassword.Location = new System.Drawing.Point(263, 371);
+            this.textBoxPassword.Name = "textBoxPassword";
+            this.textBoxPassword.PasswordChar = '*';
+            this.textBoxPassword.Size = new System.Drawing.Size(150, 23);
+            this.textBoxPassword.TabIndex = 9;
+            this.textBoxPassword.TextChanged += new System.EventHandler(this.textBoxPassword_TextChanged);
+            // 
             // FormMain
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.DodgerBlue;
             this.ClientSize = new System.Drawing.Size(664, 408);
+            this.Controls.Add(this.textBoxPassword);
+            this.Controls.Add(this.labelTime);
             this.Controls.Add(this.checkBoxDebug);
             this.Controls.Add(this.numericUpDownFontSize);
             this.Controls.Add(this.richTextBoxMain);
@@ -197,7 +231,7 @@
 
         }
 
-        #endregion
+#endregion
 
         private System.Windows.Forms.Label labelHigh;
         private System.Windows.Forms.Label labelLow;
@@ -209,6 +243,9 @@
         private System.Windows.Forms.RichTextBox richTextBoxMain;
         private System.Windows.Forms.NumericUpDown numericUpDownFontSize;
         private System.Windows.Forms.CheckBox checkBoxDebug;
+        private System.Windows.Forms.Label labelTime;
+        private System.Windows.Forms.Timer timerCount;
+        private System.Windows.Forms.TextBox textBoxPassword;
     }
 }
 
